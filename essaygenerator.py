@@ -56,6 +56,13 @@ def get_transitions(sourcefile):
 		pos_1 = tags[i-1]
 		pos_2 = tags[i]
 
+		if pos_1 == '.': 
+			if '#' not in trans_counts: 
+				trans_counts['#'] = {}
+			if pos_2 not in trans_counts['#']:
+				trans_counts['#'].update({pos_2: 0})
+			trans_counts['#'][pos_2] += 1
+
 		if pos_1 not in trans_counts: 
 			trans_counts[pos_1] = {}
 		if pos_2 not in trans_counts[pos_1]: 
@@ -103,19 +110,18 @@ def generate(transitions, emissions):
     """
 
     results = []
+    state = sample_from_dist(transitions.get('#'))
 
-    state = sample_from_dist(transitions.get('DT'))
-    emit = sample_from_dist(emissions.get(state))
-
-    while emit != '.': 
+    while state != '.': 
+    	emit = sample_from_dist(emissions.get(state))
     	results.append(emit)
     	state = sample_from_dist(transitions.get(state))
     	while state not in emissions.keys():
     		state = sample_from_dist(transitions.get(state))
-    	emit = sample_from_dist(emissions.get(state))
 
+    emit = sample_from_dist(emissions.get(state))
     results.append(emit)
-
+    
     return results
 
 def main():
