@@ -6,9 +6,16 @@ import os
 import argparse
 import numpy
 import numpy.random
+from utils import normalize, basic_count, length_count, tuple_count
 
+"""
+Uses HMM and bigrams to generate strings of words to be used in the body of a 
+paragraph/essay. For the emission probabilities, uses a weighted average of HMM 
+transition-emission probabilities and bigram probabilities. 
 
-# essaygenerator.py
+(not yet complete)The strings are parsed for grammatical correctness using the CYK 
+algorithm and a grammar designed by the authors. 
+"""
 __author__ = 'S. May and Misha Olynyk'
 
 def sample_from_dist(d):
@@ -24,14 +31,6 @@ def sample_from_dist(d):
         cumul += d[k]
         if roll < cumul:
             return k
-
-def normalize(countdict):
-    """given a dictionary mapping items to counts,
-    return a dictionary mapping items to their normalized (relative) counts
-    Example: normalize({'a': 2, 'b': 1, 'c': 1}) -> {'a': 0.5, 'b': 0.25, 'c': 0.25}
-    """
-    total = sum(countdict.values())
-    return {item: val/total for item, val in countdict.items()}
 
 def tag_words_from_file(file):
 	"""
@@ -102,6 +101,28 @@ def get_emissions(stylefile):
 		emit_probs[key] = normalize(values)
 
 	return emit_probs
+
+def get_relcounts(sourcefile):
+	"""
+	Given a file, returns a nested n-gram relative counts dictionary, supporting
+	unigrams and bigrams.  Add-1 smoothing is used.  
+	"""
+	tokens = word_tokenize(''.join(codecs.open(file, encoding='utf-8').readlines()))
+	unigram = noramlize(basic_count(tokens))
+
+	tup_count = tuple_count(tokens, 2)
+
+	bigram = {}
+	for tup, value in tup_count.items(): 
+		if tup[0] not in bigram: 
+			bigram[tup[0]] = {}
+		if tup[1] not in bigram[tup[0]]: 
+			bigram[tup[0]].update({tup[1]: value})
+
+
+	#### normalize 
+
+	return {1: unigram, 2: bigram}
 
 def generate(transitions, emissions):
     """
