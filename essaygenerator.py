@@ -24,7 +24,6 @@ def sample_from_dist(d):
     sample a key according to the distribution.
     Example: if d is {'H': 0.7, 'T': 0.3}, 'H' should be returned about 0.7 of time.
     """
-    # Do not modify this function
     roll = numpy.random.random()
     cumul = 0
     for k in d:
@@ -42,11 +41,11 @@ def tag_words_from_file(file):
 	return pos_tag(word_tokenize(f))
 
 
-def get_transitions(sourcefile):
+def get_transitions(stylefile):
 	"""
 	Given a file, returns a nested dictionary of format {POS1: {POS1_1: Prob1_1, POS1_2: Prob1_2, ... } ... }.
 	"""
-	tags = [tup[1] for tup in tag_words_from_file(sourcefile)]
+	tags = [tup[1] for tup in tag_words_from_file(stylefile)]
 	tags.insert(0, '.') # treat first word of file as if it follows period (e.g. is start of sentence)
 
 	trans_counts = {}
@@ -75,13 +74,13 @@ def get_transitions(sourcefile):
 
 	return trans_probs
 
-def get_emissions(stylefile): 
+def get_emissions(sourcefile): 
 	"""
-	Given a file, returns a nested dictionary of format {POS1: {EMIT1_1: Prob1_1, EMIT1_2: Prob1_2, ... } ... }.
+	Given source file, returns a nested dictionary of format {POS1: {EMIT1_1: Prob1_1, EMIT1_2: Prob1_2, ... } ... }.
 	Technically, only the parts of speech that are also in transitions dict will be used, since the paragraph/essay is in the style
 	given by the transitions dictionary. 
 	"""
-	tags = tag_words_from_file(stylefile)
+	tags = tag_words_from_file(sourcefile)
 
 	emit_counts = {}
 
@@ -99,16 +98,17 @@ def get_emissions(stylefile):
 
 	for key, values in emit_counts.iteritems(): 
 		emit_probs[key] = normalize(values)
+	#print "\n", emit_probs
 
 	return emit_probs
 
 def get_relcounts(sourcefile):
 	"""
-	Given a file, returns a nested n-gram relative counts dictionary, supporting
-	unigrams and bigrams.  Add-1 smoothing is used.  
+	Given a file, returns a bigram relative counts dictionary.
+	{tup[0]: tup[1]: value, tup1[1]: value1, ... 
 	"""
-	tokens = word_tokenize(''.join(codecs.open(file, encoding='utf-8').readlines()))
-	unigram = noramlize(basic_count(tokens))
+	tokens = word_tokenize(''.join(codecs.open(sourcefile, encoding='utf-8').readlines()))
+	#unigram = noramlize(basic_count(tokens))
 
 	tup_count = tuple_count(tokens, 2)
 
@@ -119,30 +119,48 @@ def get_relcounts(sourcefile):
 		if tup[1] not in bigram[tup[0]]: 
 			bigram[tup[0]].update({tup[1]: value})
 
+	for key, values in bigram.iteritems(): 
+		bigram[key] = normalize(values)
+	#print relcounts
+	return bigram
+	#return {1: unigram, 2: bigram}
 
-	#### normalize 
-
-	return {1: unigram, 2: bigram}
-
-def generate(transitions, emissions):
+def generate(transitions, emissions, relcounts):
     """
     Given transition and emission dictionaries, generate a list of symbols by randomly
     sampling the transition/emission dictionaries (HMM) until the emission is not '.'
     """
 
     results = []
+    # get / add start word
     state = sample_from_dist(transitions.get('#'))
-
-    while state != '.': 
-    	emit = sample_from_dist(emissions.get(state))
+    emit = sample_from_dist(emissions.get(state))
+    if emit != None: 
     	results.append(emit)
+    state = sample_from_dist(transitions.get(state))
+
+    # get / add remaining words 
+    while state != '.':
+    	emit_dict = emissions.get(state)
+    	if emit in relcounts: 
+    		rel_dict = relcounts.get(emit)
+    		for key, value in emit_dict.items(): 
+    			if key in rel_dict: 
+    				emit_dict[key] = 0.5*value + 0.5*rel_dict[key]
+    		emit_dict = normalize(emit_dict)
+
+    	emit = sample_from_dist(emit_dict)
+    	if emit != None: 
+    		results.append(emit)
+
     	state = sample_from_dist(transitions.get(state))
     	while state not in emissions.keys():
     		state = sample_from_dist(transitions.get(state))
 
     emit = sample_from_dist(emissions.get(state))
-    results.append(emit)
-    
+    if emit != None: 
+    	results.append(emit)
+    #print "\n", results, "\n"
     return results
 
 def main():
@@ -160,10 +178,13 @@ def main():
 	emissions = get_emissions(args.sourcefile)
 	print "emissions complete"
 
+	relcounts = get_relcounts(args.sourcefile)
+	print "relcounts complete"
+
 	with codecs.open('output.txt', 'a', 'utf8') as o: 
 		o.write('****** NEW TRIAL ******\n')
 		for _ in range(20):
-			o.write(' '.join(generate(transitions, emissions))+'\n')
+			o.write(' '.join(generate(transitions, emissions, relcounts))+'\n')
 
 	print "DONE"
 
