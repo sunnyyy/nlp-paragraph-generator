@@ -3,6 +3,7 @@ from math import log
 from nltk.tokenize import word_tokenize
 import codecs #for unicode
 import unicodecsv as csv
+import sys
 
 __author__ = "Sunnia Ye"
 
@@ -119,7 +120,7 @@ def inv_doc_freq_v1(csvfile, option):
 '''
 def tf_idf_v1(tf_file, idf_filelist):
 	tf = term_freq(tf_file)
-	idf = idf_preprocess(idf_filelist)
+	idf = idf_preprocess(idf_file)
 	tfidf = {}
 	for key, value in tf:
 		if key in idf:
@@ -128,11 +129,11 @@ def tf_idf_v1(tf_file, idf_filelist):
 			tfidf[key] = 0 #if it never appears in ANY other docs, we assume a misspelling?
 	return tfidf
 
-def main():
-	inv_doc_freq_v1('wdc/_wdc-F.csv',0)
+def main(tf_file, idf_file):
+	tf_idf_v1(tf_file, idf_file)
 
 if __name__ == '__main__':
- 	main()
+ 	main(sys.argv[1], 'idf_0-smoothed.csv')
 
 
 
