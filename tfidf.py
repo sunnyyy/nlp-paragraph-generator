@@ -113,15 +113,30 @@ def inv_doc_freq_v1(csvfile, option):
 
 	#return idf
 
-
+'''
+***** read in the preprocessed .csv file of idf values *****
+Output: a dictionary of the idf values
+'''
+def idf_preprocessed(idf_file):
+	idf = {}
+	with open(idf_file, 'r') as infile:
+		csvreader = csv.reader(infile, delimiter=',', quotechar='"', encoding='utf-8')
+		for row in csvreader:
+			if row[0] in wdc:
+				idf[row[0]] += int(row[1])
+			else:
+				idf[row[0]] = int(row[1])
+	return idf
 
 '''
 HI SARAH LOOK HERE
-***** TF-IDF given csv file of IDF values *****
+***** TF-IDF given a .csv file of IDF values *****
+Input: a file on which you'd like to tfidf, and a CSV of preprocessed idf values
+Output: a dictionary of tfidf values
 '''
 def tf_idf_v1(tf_file, idf_filelist):
 	tf = term_freq(tf_file)
-	idf = idf_preprocess(idf_file)
+	idf = idf_preprocessed(idf_file)
 	tfidf = {}
 	for key, value in tf:
 		if key in idf:
