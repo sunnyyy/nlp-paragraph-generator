@@ -116,7 +116,8 @@ def inv_doc_freq_v1(csvfile, option):
 
 
 '''
-***
+HI SARAH LOOK HERE
+***** TF-IDF given csv file of IDF values *****
 '''
 def tf_idf_v1(tf_file, idf_filelist):
 	tf = term_freq(tf_file)
