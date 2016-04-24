@@ -1,6 +1,8 @@
 from __future__ import division  # floating point division
 from math import log
 from collections import Counter
+import numpy
+import numpy.random
 
 
 def normalize(countdict):
@@ -67,5 +69,17 @@ def tuple_count(itemlist, tuplen):
             counts[tup] = counts.get(tup, 0) + 1
     return counts
 
+def sample_from_dist(d):
+    """given a dictionary representing a discrete probability distribution
+    (keys are atomic outcomes, values are probabilities)
+    sample a key according to the distribution.
+    Example: if d is {'H': 0.7, 'T': 0.3}, 'H' should be returned about 0.7 of time.
+    """
+    roll = numpy.random.random()
+    cumul = 0
+    for k in d:
+        cumul += d[k]
+        if roll < cumul:
+            return k
 
 

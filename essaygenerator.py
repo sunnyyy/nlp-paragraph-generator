@@ -4,32 +4,19 @@ from nltk.tokenize import word_tokenize
 import codecs
 import os
 import argparse
-import numpy
-import numpy.random
-from utils import normalize, basic_count, length_count, tuple_count
+import utils 
+from tfidf import tf_idf_v1
 
 """
-Uses HMM and bigrams to generate strings of words to be used in the body of a 
-paragraph/essay. For the emission probabilities, uses a weighted average of HMM 
-transition-emission probabilities and bigram probabilities. 
+Given a source file (s), style file (t), and output file (o), generates strings of words to be used
+in the body of a paragraph/essay summarizing s in the style of t.  Writes these strings to o. 
 
-(not yet complete)The strings are parsed for grammatical correctness using the CYK 
-algorithm and a grammar designed by the authors. 
+Emission probabilities are derived from a weighted average of HMM transition-emission probabilities 
+(based on on s and t) and bigram probabilites (based only on s). 
+
+The probability of certain key words from s, identified by the tfidf algorithm, are artificially increased.
 """
-__author__ = 'S. May and Misha Olynyk'
-
-def sample_from_dist(d):
-    """given a dictionary representing a discrete probability distribution
-    (keys are atomic outcomes, values are probabilities)
-    sample a key according to the distribution.
-    Example: if d is {'H': 0.7, 'T': 0.3}, 'H' should be returned about 0.7 of time.
-    """
-    roll = numpy.random.random()
-    cumul = 0
-    for k in d:
-        cumul += d[k]
-        if roll < cumul:
-            return k
+__author__ = 'S. May'
 
 def tag_words_from_file(file):
 	"""
@@ -70,17 +57,19 @@ def get_transitions(stylefile):
 	trans_probs = {}
 
 	for key, values in trans_counts.iteritems(): 
-		trans_probs[key] = normalize(values)
+		trans_probs[key] = utils.normalize(values)
 
 	return trans_probs
 
 def get_emissions(sourcefile): 
 	"""
 	Given source file, returns a nested dictionary of format {POS1: {EMIT1_1: Prob1_1, EMIT1_2: Prob1_2, ... } ... }.
-	Technically, only the parts of speech that are also in transitions dict will be used, since the paragraph/essay is in the style
-	given by the transitions dictionary. 
+	Probabilities of certain key words identified by the tfidf algorithm are artificially increased.
 	"""
 	tags = tag_words_from_file(sourcefile)
+
+	tfidf_dict = tf_idf_v1(sourcefile, 'idf/idf_0-smoothed.csv')
+	top_words = set(sorted(tfidf_dict.keys(), key= tfidf_dict.get, reverse=True)[:5]) 
 
 	emit_counts = {}
 
@@ -92,13 +81,17 @@ def get_emissions(sourcefile):
 			emit_counts[pos] = {}
 		if emit not in emit_counts[pos]: 
 			emit_counts[pos].update({emit: 0})
-		emit_counts[pos][emit] += 1
+
+		# double probabilities of key words
+		if emit in top_words:
+			emit_counts[pos][emit] += 2
+		else:
+			emit_counts[pos][emit] += 1
 
 	emit_probs = {}
 
 	for key, values in emit_counts.iteritems(): 
-		emit_probs[key] = normalize(values)
-	#print "\n", emit_probs
+		emit_probs[key] = utils.normalize(values)
 
 	return emit_probs
 
@@ -108,9 +101,8 @@ def get_relcounts(sourcefile):
 	{tup[0]: tup[1]: value, tup1[1]: value1, ... 
 	"""
 	tokens = word_tokenize(''.join(codecs.open(sourcefile, encoding='utf-8').readlines()))
-	#unigram = noramlize(basic_count(tokens))
 
-	tup_count = tuple_count(tokens, 2)
+	tup_count = utils.tuple_count(tokens, 2)
 
 	bigram = {}
 	for tup, value in tup_count.items(): 
@@ -120,10 +112,8 @@ def get_relcounts(sourcefile):
 			bigram[tup[0]].update({tup[1]: value})
 
 	for key, values in bigram.iteritems(): 
-		bigram[key] = normalize(values)
-	#print relcounts
+		bigram[key] = utils.normalize(values)
 	return bigram
-	#return {1: unigram, 2: bigram}
 
 def generate(transitions, emissions, relcounts):
     """
@@ -133,11 +123,11 @@ def generate(transitions, emissions, relcounts):
 
     results = []
     # get / add start word
-    state = sample_from_dist(transitions.get('#'))
-    emit = sample_from_dist(emissions.get(state))
+    state = utils.sample_from_dist(transitions.get('#'))
+    emit = utils.sample_from_dist(emissions.get(state))
     if emit != None: 
     	results.append(emit)
-    state = sample_from_dist(transitions.get(state))
+    state = utils.sample_from_dist(transitions.get(state))
 
     # get / add remaining words 
     while state != '.':
@@ -147,20 +137,19 @@ def generate(transitions, emissions, relcounts):
     		for key, value in emit_dict.items(): 
     			if key in rel_dict: 
     				emit_dict[key] = 0.5*value + 0.5*rel_dict[key]
-    		emit_dict = normalize(emit_dict)
+    		emit_dict = utils.normalize(emit_dict)
 
-    	emit = sample_from_dist(emit_dict)
+    	emit = utils.sample_from_dist(emit_dict)
     	if emit != None: 
     		results.append(emit)
 
-    	state = sample_from_dist(transitions.get(state))
+    	state = utils.sample_from_dist(transitions.get(state))
     	while state not in emissions.keys():
-    		state = sample_from_dist(transitions.get(state))
+    		state = utils.sample_from_dist(transitions.get(state))
 
-    emit = sample_from_dist(emissions.get(state))
+    emit = utils.sample_from_dist(emissions.get(state))
     if emit != None: 
     	results.append(emit)
-    #print "\n", results, "\n"
     return results
 
 def main():
@@ -169,6 +158,8 @@ def main():
 	# required arguments
 	parser.add_argument('sourcefile', type=str, help='source of information for paragraph')
 	parser.add_argument('stylefile', type=str, help='essay in style of author')
+	parser.add_argument('outputfile', type=str, 
+		help="text file to write output sentences -- file will be created if does not exist")
 
 	args = parser.parse_args()
 
@@ -181,7 +172,12 @@ def main():
 	relcounts = get_relcounts(args.sourcefile)
 	print "relcounts complete"
 
-	with codecs.open('output.txt', 'a', 'utf8') as o: 
+	cd = os.getcwd()
+	# make output directory if none yet exists
+	if not os.path.isdir("output"): 
+		os.mkdir("output")
+
+	with codecs.open(cd + "/output/" + args.outputfile, 'a', 'utf8') as o: 
 		o.write('****** NEW TRIAL ******\n')
 		for _ in range(20):
 			o.write(' '.join(generate(transitions, emissions, relcounts))+'\n')

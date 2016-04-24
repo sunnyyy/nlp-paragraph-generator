@@ -122,10 +122,10 @@ def idf_preprocessed(idf_file):
 	with open(idf_file, 'r') as infile:
 		csvreader = csv.reader(infile, delimiter=',', quotechar='"', encoding='utf-8')
 		for row in csvreader:
-			if row[0] in wdc:
-				idf[row[0]] += int(row[1])
+			if row[0] in idf:
+				idf[row[0]] += float(row[1])
 			else:
-				idf[row[0]] = int(row[1])
+				idf[row[0]] = float(row[1])
 	return idf
 
 '''
@@ -135,8 +135,8 @@ Input: a file on which you'd like to tfidf, and a CSV of preprocessed idf values
 Output: a dictionary of tfidf values
 '''
 def tf_idf_v1(tf_file, idf_filelist):
-	tf = term_freq(tf_file)
-	idf = idf_preprocessed(idf_file)
+	tf = term_freq(tf_file, 0, 0)
+	idf = idf_preprocessed(idf_filelist)
 	tfidf = {}
 	for key, value in tf:
 		if key in idf:
