@@ -61,7 +61,7 @@ def get_transitions(stylefile):
 
 	return trans_probs
 
-def get_emissions(sourcefile): 
+def get_emissions(sourcefile, keyword_weight, num_keywords): 
 	"""
 	Given source file, returns a nested dictionary of format {POS1: {EMIT1_1: Prob1_1, EMIT1_2: Prob1_2, ... } ... }.
 	Probabilities of certain key words identified by the tfidf algorithm are artificially increased.
@@ -69,7 +69,7 @@ def get_emissions(sourcefile):
 	tags = tag_words_from_file(sourcefile)
 
 	tfidf_dict = tf_idf_v1(sourcefile, 'idf/idf_0-smoothed.csv')
-	top_words = set(sorted(tfidf_dict.keys(), key= tfidf_dict.get, reverse=True)[:5]) 
+	top_words = set(sorted(tfidf_dict.keys(), key= tfidf_dict.get, reverse=True)[:num_keywords]) 
 
 	emit_counts = {}
 
@@ -82,9 +82,9 @@ def get_emissions(sourcefile):
 		if emit not in emit_counts[pos]: 
 			emit_counts[pos].update({emit: 0})
 
-		# double probabilities of key words
+		# increase probabilities of key words
 		if emit in top_words:
-			emit_counts[pos][emit] += 2
+			emit_counts[pos][emit] += keyword_weight
 		else:
 			emit_counts[pos][emit] += 1
 
@@ -115,12 +115,14 @@ def get_relcounts(sourcefile):
 		bigram[key] = utils.normalize(values)
 	return bigram
 
-def generate(transitions, emissions, relcounts):
+def generate(transitions, emissions, relcounts, bigram_weight):
     """
     Given transition and emission dictionaries, generate a list of symbols by randomly
     sampling the transition/emission dictionaries (HMM) until the emission is not '.'
+    Emissions are based on both HMM transition emission and bigram probabilities, 
+    in weights given by bigram_weight and (1-bigram_weight)
     """
-
+    hmm_weight = 1-bigram_weight
     results = []
     # get / add start word
     state = utils.sample_from_dist(transitions.get('#'))
@@ -136,7 +138,7 @@ def generate(transitions, emissions, relcounts):
     		rel_dict = relcounts.get(emit)
     		for key, value in emit_dict.items(): 
     			if key in rel_dict: 
-    				emit_dict[key] = 0.5*value + 0.5*rel_dict[key]
+    				emit_dict[key] = hmm_weight*value + bigram_weight*rel_dict[key]
     		emit_dict = utils.normalize(emit_dict)
 
     	emit = utils.sample_from_dist(emit_dict)
@@ -158,29 +160,43 @@ def main():
 	# required arguments
 	parser.add_argument('sourcefile', type=str, help='source of information for paragraph')
 	parser.add_argument('stylefile', type=str, help='essay in style of author')
-	parser.add_argument('outputfile', type=str, 
-		help="text file to write output sentences -- file will be created if does not exist")
+	parser.add_argument('keyword_weight', type=float, 
+		help="multiplicative weight of key words. e.g. a weight of 2 doubles probabilities of keywords")
+	parser.add_argument('num_keywords', type=int,
+		help="number of keywords to grab")
+	parser.add_argument('bigram_weight', type=float,
+		help="weight of bigram probability to be used in generating emissions, e.g. 0 means only uses HMM, 1 means only uses Bigram")
 
 	args = parser.parse_args()
 
-	transitions = get_transitions(args.stylefile)
-	print "transitions complete"
-
-	emissions = get_emissions(args.sourcefile)
-	print "emissions complete"
-
-	relcounts = get_relcounts(args.sourcefile)
-	print "relcounts complete"
+	if args.bigram_weight > 1 or args.bigram_weight < 0:
+		raise Exception("bigram_weight must be in range [0,1]")
 
 	cd = os.getcwd()
+
+	transitions = get_transitions(cd + "/sourcedocs/" + args.stylefile)
+	print "transitions complete"
+
+	emissions = get_emissions(cd + "/sourcedocs/" + args.sourcefile, args.keyword_weight)
+	print "emissions complete"
+
+	relcounts = get_relcounts(cd + "/sourcedocs/" + args.sourcefile)
+	print "relcounts complete"
+
+	
 	# make output directory if none yet exists
 	if not os.path.isdir("output"): 
 		os.mkdir("output")
 
-	with codecs.open(cd + "/output/" + args.outputfile, 'a', 'utf8') as o: 
+	outputfile = (args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
+		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt")
+
+	with codecs.open(cd + "/output/" + outputfile, 'a', 'utf8') as o: 
 		o.write('\n\n****** NEW TRIAL ******\n')
 		for _ in range(20):
-			o.write(' '.join(generate(transitions, emissions, relcounts))+'\n')
+			o.write(' '.join(generate(transitions, emissions, relcounts, args.bigram_weight))+'\n')
+
+	print "written to:", "/output/"+outputfile
 
 	print "DONE"
 
