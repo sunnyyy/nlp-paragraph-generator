@@ -126,7 +126,7 @@ def generate(transitions, emissions, relcounts):
     state = utils.sample_from_dist(transitions.get('#'))
     emit = utils.sample_from_dist(emissions.get(state))
     if emit != None: 
-    	results.append(emit)
+    	results.append(emit.title())
     state = utils.sample_from_dist(transitions.get(state))
 
     # get / add remaining words 
@@ -141,7 +141,7 @@ def generate(transitions, emissions, relcounts):
 
     	emit = utils.sample_from_dist(emit_dict)
     	if emit != None: 
-    		results.append(emit)
+    		results.append(emit.lower())
 
     	state = utils.sample_from_dist(transitions.get(state))
     	while state not in emissions.keys():
@@ -149,7 +149,7 @@ def generate(transitions, emissions, relcounts):
 
     emit = utils.sample_from_dist(emissions.get(state))
     if emit != None: 
-    	results.append(emit)
+    	results.append(emit.lower())
     return results
 
 def main():
@@ -178,7 +178,7 @@ def main():
 		os.mkdir("output")
 
 	with codecs.open(cd + "/output/" + args.outputfile, 'a', 'utf8') as o: 
-		o.write('****** NEW TRIAL ******\n')
+		o.write('\n\n****** NEW TRIAL ******\n')
 		for _ in range(20):
 			o.write(' '.join(generate(transitions, emissions, relcounts))+'\n')
 
