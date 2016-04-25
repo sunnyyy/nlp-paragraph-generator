@@ -138,7 +138,7 @@ def tf_idf_v1(tf_file, idf_filelist):
 	tf = term_freq(tf_file, 0, 0)
 	idf = idf_preprocessed(idf_filelist)
 	tfidf = {}
-	for key, value in tf:
+	for key, value in tf.items():
 		if key in idf:
 			tfidf[key] = value * idf[key]
 		else:
