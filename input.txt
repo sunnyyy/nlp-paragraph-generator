@@ -1,3 +1,6 @@
 Hello, I am a cat.
 Hello, I am a walrus.
 I am the walrus.
+I am
+The dog
+I am the dog
