@@ -6,6 +6,7 @@ import os
 import argparse
 import utils 
 from tfidf import tf_idf_v1
+import parse
 
 """
 Given a source file (s), style file (t), and output file (o), generates strings of words to be used
@@ -23,7 +24,7 @@ def tag_words_from_file(file):
 	Given a file, returns a list of two-element tuples consisting of format (u'word', 'POS'), where word
 	is a given word in the text and POS is its part of speech. Order of the words is maintained 
 	Utilizes pos_tag from nltk.tokenize.
-	"""
+v	"""
 	f = ''.join(codecs.open(file, encoding='utf-8').readlines())
 	return pos_tag(word_tokenize(f))
 
@@ -191,10 +192,11 @@ def main():
 	outputfile = (args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
 		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt")
 
-	with codecs.open(cd + "/output/" + outputfile, 'a', 'utf8') as o: 
+	o = codecs.open(cd + "/output/" + outputfile, 'a', 'utf8') 
 		o.write('\n\n****** NEW TRIAL ******\n')
 		for _ in range(20):
 			o.write(' '.join(generate(transitions, emissions, relcounts, args.bigram_weight))+'\n')
+			
 
 	print "written to:", "/output/"+outputfile
 
