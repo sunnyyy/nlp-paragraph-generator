@@ -2,7 +2,7 @@ from __future__ import division  # floating point division
 from math import log
 from nltk.tokenize import word_tokenize
 import codecs #for unicode
-import unicodecsv as csv
+import csv
 import sys
 
 __author__ = "Sunnia Ye"
