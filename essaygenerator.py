@@ -178,7 +178,7 @@ def main():
 	transitions = get_transitions(cd + "/sourcedocs/" + args.stylefile)
 	print "transitions complete"
 
-	emissions = get_emissions(cd + "/sourcedocs/" + args.sourcefile, args.keyword_weight)
+	emissions = get_emissions(cd + "/sourcedocs/" + args.sourcefile, args.keyword_weight, args.num_keywords)
 	print "emissions complete"
 
 	relcounts = get_relcounts(cd + "/sourcedocs/" + args.sourcefile)
