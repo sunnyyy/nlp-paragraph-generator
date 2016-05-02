@@ -54,7 +54,7 @@ Returns: a dictionary of terms --> docs per term
 def docs_per_word_parser(csvfile):
 	wdc = {}
 	with open(csvfile, 'r') as infile:
-		csvreader = csv.reader(infile, delimiter=',', quotechar='"', encoding='utf-8')
+		csvreader = csv.reader(infile, delimiter=',', quotechar='"')
 		for row in csvreader:
 			if row[0] in wdc:
 				wdc[row[0]] += int(row[1])
