@@ -203,7 +203,7 @@ def main():
 	print "written to:", "/output/"+outputfile
 
 	parsed_sents = parse.main(5)
-	print "\n", '\n'.join(parsed_sents.split())
+	print "\n", '\n'.join(parsed_sents)
 
 	print "\nDONE"
 
