@@ -10,18 +10,18 @@ an output file which includes a parse tree.
 WARNING, BEFORE RUNNING BE SURE THAT sampleProps.properties REFLECTS THE
 INPUT FILE NAME.
 '''
-def run_parser(f):
+def run_parser():
     args = ['java','-Xmx1g','edu.stanford.nlp.pipeline.StanfordCoreNLP','-props','sampleProps.properties']
     p = subprocess.Popen(args)
-    if os.path.isfile(f + '.output'):
+    if os.path.isfile('input.txt.output'):
         p.terminate() #after results saved to file terminate the subprocess
 '''
 Analyze the output file, specifically the returned parse tree. And return
 five non-fragment sentences by determining whether an S is present after ROOT
 '''
-def analyze_results(f_name,num_sents):
-    f = open(f_name)
-    output = open(f_name + '.output')
+def analyze_results(num_sents):
+    f = open('input.txt')
+    output = open('input.txt.output')
     input_lines = f.readlines()
     complete_sentences = []
     input_index = 0
@@ -36,13 +36,12 @@ def analyze_results(f_name,num_sents):
                 break
     return complete_sentences
 
-def main(f_name,sents):
-    run_parser(f_name)
-    return analyze_results(f_name,sents)
+def main(sents):
+    run_parser()
+    return analyze_results(sents)
 
 if __name__ == '__main__':
-    f_name = sys.argv[1]
-    sents = int(sys.argv[2])
-    run_parser(f_name)
-    complete_sentences = analyze_results(f_name,sents)
+    sents = int(sys.argv[1])
+    run_parser()
+    complete_sentences = analyze_results(sents)
     print complete_sentences
