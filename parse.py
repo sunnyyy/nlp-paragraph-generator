@@ -13,8 +13,9 @@ INPUT FILE NAME.
 def run_parser():
     args = ['java','-Xmx1g','edu.stanford.nlp.pipeline.StanfordCoreNLP','-props','sampleProps.properties']
     p = subprocess.Popen(args)
-    if os.path.isfile('input.txt.output'):
-        p.terminate() #after results saved to file terminate the subprocess
+    p.wait()
+    #if os.path.isfile('input.txt.output'):
+    #    p.terminate() #after results saved to file terminate the subprocess
 '''
 Analyze the output file, specifically the returned parse tree. And return
 five non-fragment sentences by determining whether an S is present after ROOT
@@ -28,8 +29,10 @@ def analyze_results(num_sents):
     #print "I'm in this method"
     for line in output.readlines():
         if "<parse>" in line:
-            if '(ROOT (S' in line:
+            if '(ROOT (S ' in line:
                 sentence = input_lines[input_index]
+               # print "line: ", line
+               # print "sentence: ", sentence
                 complete_sentences.append(sentence[:len(sentence)-1])
             input_index += 1
             if len(complete_sentences) == num_sents:
@@ -44,4 +47,4 @@ if __name__ == '__main__':
     sents = int(sys.argv[1])
     run_parser()
     complete_sentences = analyze_results(sents)
-    #print complete_sentences
+    print complete_sentences
