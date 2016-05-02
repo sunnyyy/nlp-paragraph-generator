@@ -193,7 +193,7 @@ def main():
 		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt")
 
 	o = codecs.open(cd + "/output/" + outputfile, 'a', 'utf8') 
-	input_f = codecs.open('input.txt')
+	input_f = codecs.open('input.txt', 'w+', 'utf8')
 	o.write('\n\n****** NEW TRIAL ******\n')
 	for _ in range(20):
 		new_line = ' '.join(generate(transitions, emissions, relcounts, args.bigram_weight))
