@@ -107,7 +107,7 @@ def inv_doc_freq_v1(csvfile, option):
 
 	ops = ['','smoothed','max','probabilistic']
 	with open('idf/idf_'+csvfile[9:10]+'-'+ops[option]+'.csv', 'w') as outfile:
-		csvwriter = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, encoding='utf-8')
+		csvwriter = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 		for key,value in idf.items():
 			csvwriter.writerow([key,value])
 
@@ -120,7 +120,7 @@ Output: a dictionary of the idf values
 def idf_preprocessed(idf_file):
 	idf = {}
 	with open(idf_file, 'r') as infile:
-		csvreader = csv.reader(infile, delimiter=',', quotechar='"', encoding='utf-8')
+		csvreader = csv.reader(infile, delimiter=',', quotechar='"')
 		for row in csvreader:
 			if row[0] in idf:
 				idf[row[0]] += float(row[1])
