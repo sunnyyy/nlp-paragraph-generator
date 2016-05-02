@@ -193,14 +193,19 @@ def main():
 		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt")
 
 	o = codecs.open(cd + "/output/" + outputfile, 'a', 'utf8') 
-		o.write('\n\n****** NEW TRIAL ******\n')
-		for _ in range(20):
-			o.write(' '.join(generate(transitions, emissions, relcounts, args.bigram_weight))+'\n')
-			
+	input_f = codecs.open('input.txt')
+	o.write('\n\n****** NEW TRIAL ******\n')
+	for _ in range(20):
+		new_line = ' '.join(generate(transitions, emissions, relcounts, args.bigram_weight))
+		o.write(new_line +'\n')
+		input_f.write(new_line + '\n')
 
 	print "written to:", "/output/"+outputfile
 
-	print "DONE"
+	parsed_sents = parse.main(5)
+	print "\n", parsed_sents
+
+	print "\nDONE"
 
 
 if __name__ == '__main__':

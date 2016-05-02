@@ -25,7 +25,7 @@ def analyze_results(num_sents):
     input_lines = f.readlines()
     complete_sentences = []
     input_index = 0
-    print "I'm in this method"
+    #print "I'm in this method"
     for line in output.readlines():
         if "<parse>" in line:
             if '(ROOT (S' in line:
@@ -44,4 +44,4 @@ if __name__ == '__main__':
     sents = int(sys.argv[1])
     run_parser()
     complete_sentences = analyze_results(sents)
-    print complete_sentences
+    #print complete_sentences
