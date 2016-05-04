@@ -31,8 +31,9 @@ def analyze_results(num_sents):
         if "<parse>" in line:
             if '(ROOT (S ' in line:
                 sentence = input_lines[input_index]
-               # print "line: ", line
-               # print "sentence: ", sentence
+                print "line num: ", input_index
+                print "line: ", line
+                print "sentence: ", sentence
                 complete_sentences.append(sentence[:len(sentence)-1])
             input_index += 1
             if len(complete_sentences) == num_sents:
