@@ -195,6 +195,7 @@ def main():
 	outputfile = (args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
 		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt")
 
+	# generate sentences, and write to 2 files: outputfile and file to generate paragraph
 	o = codecs.open(cd + "/output/" + outputfile, 'a', 'utf8') 
 	input_f = codecs.open('input.txt', 'w+', 'utf8')
 	o.write('\n\n****** NEW TRIAL ******\n')
@@ -203,19 +204,19 @@ def main():
 		o.write(new_line +'\n')
 		input_f.write(new_line + '\n')
 
+	# parse sentences
 	parsed_sents = parse.main(5)
 
+	# write parsed sentences to file in /paragraphs dir 
 	if not os.path.isdir(cd + '/paragraphs'):
 		os.mkdir("paragraphs")
-
-	output_essay = open('paragraphs/essay_' + args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
-		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt", 'w+')
-
+	essay_fname = 'paragraphs/essay_' + args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
+		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt"
+	output_essay = open(essay_fname, 'w+')
 	essay = ' '.join(parsed_sents)
 	output_essay.write(essay)
 
-	print "\nDONE"
-
+	print "\nDONE, written to:", essay_fname
 
 if __name__ == '__main__':
 	main()
