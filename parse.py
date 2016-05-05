@@ -48,7 +48,7 @@ def main(sents):
     # remove files from this round so they dont potentially interfere with next round
     # (sarah was having issues with this)
     os.remove('/input.txt')
-    os.remove('/input.output.txt')
+    os.remove('/input.txt.output')
     return complete_sentences
 
 if __name__ == '__main__':
