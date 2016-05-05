@@ -30,7 +30,7 @@ def analyze_results(num_sents):
     for line in output.readlines():
         if "<parse>" in line:
             if '(ROOT (S ' in line:
-                # sentence = input_lines[input_index]
+                sentence = input_lines[input_index]
                 # print "line num: ", input_index
                 # print "line: ", line
                 # print "sentence: ", sentence
@@ -43,23 +43,23 @@ def analyze_results(num_sents):
 def main(sents):
     run_parser()
     complete_sentences = analyze_results(sents)
-    #print complete_sentences
+    # print complete_sentences
 
     # remove files from this round so they dont potentially interfere with next round
     # (sarah was having issues with this)
-    os.remove(os.getcwd + '/input.txt')
-    os.remove(os.getcwd + '/input.output.txt')
-
+    os.remove(os.getcwd() + '/input.txt')
+    os.remove(os.getcwd() + '/input.output.txt')
     return complete_sentences
 
 if __name__ == '__main__':
     sents = int(sys.argv[1])
     main(sents)
-    # run_parser()
-    # complete_sentences = analyze_results(sents)
-    # print complete_sentences
-
+    #run_parser()
+    #complete_sentences = analyze_results(sents)
+    #print complete_sentences
+    
     # # remove files from this round so they dont potentially interfere with next round
     # # (sarah was having issues with this)
-    # os.remove(os.getcwd + '/input.txt')
-    # os.remove(os.getcwd + '/input.output.txt')
+    # os.remove(os.getcwd() + '/input.txt')
+    # os.remove(os.getcwd() + '/input.output.txt')
+    # return complete_sentences
