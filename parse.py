@@ -47,8 +47,8 @@ def main(sents):
 
     # remove files from this round so they dont potentially interfere with next round
     # (sarah was having issues with this)
-    os.remove(os.getcwd() + '/input.txt')
-    os.remove(os.getcwd() + '/input.output.txt')
+    os.remove('/input.txt')
+    os.remove('/input.output.txt')
     return complete_sentences
 
 if __name__ == '__main__':
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     #run_parser()
     #complete_sentences = analyze_results(sents)
     #print complete_sentences
-    
+
     # # remove files from this round so they dont potentially interfere with next round
     # # (sarah was having issues with this)
     # os.remove(os.getcwd() + '/input.txt')
