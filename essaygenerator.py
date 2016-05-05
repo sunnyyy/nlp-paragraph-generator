@@ -8,9 +8,12 @@ import utils
 from tfidf import tf_idf_v1
 import parse
 
-"""
+""" 
 Given a source file (s), style file (t), and output file (o), generates strings of words to be used
 in the body of a paragraph/essay summarizing s in the style of t.  Writes these strings to o. 
+
+Arguments: s, t, 
+
 
 Emission probabilities are derived from a weighted average of HMM transition-emission probabilities 
 (based on on s and t) and bigram probabilites (based only on s). 
@@ -200,12 +203,12 @@ def main():
 		o.write(new_line +'\n')
 		input_f.write(new_line + '\n')
 
-	#print "written to:", "/output/"+outputfile
-
 	parsed_sents = parse.main(5)
-	#print "\n", '\n'.join(parsed_sents)
 
-	output_essay = open('essay_' + args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
+	if not os.path.isdir(cd + '/paragraphs'):
+		os.mkdir("paragraphs")
+
+	output_essay = open('paragraphs/essay_' + args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
 		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt", 'w+')
 
 	essay = ' '.join(parsed_sents)
