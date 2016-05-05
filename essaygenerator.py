@@ -200,10 +200,16 @@ def main():
 		o.write(new_line +'\n')
 		input_f.write(new_line + '\n')
 
-	print "written to:", "/output/"+outputfile
+	#print "written to:", "/output/"+outputfile
 
 	parsed_sents = parse.main(5)
-	print "\n", '\n'.join(parsed_sents)
+	#print "\n", '\n'.join(parsed_sents)
+
+	output_essay = open('essay_' + args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
+		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt", 'w+')
+
+	essay = ' '.join(parsed_sents)
+	output_essay.write(essay)
 
 	print "\nDONE"
 
