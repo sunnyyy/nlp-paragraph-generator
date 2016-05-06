@@ -210,8 +210,7 @@ def main():
 	# write parsed sentences to file in /paragraphs dir 
 	if not os.path.isdir(cd + '/paragraphs'):
 		os.mkdir("paragraphs")
-	essay_fname = 'paragraphs/essay_' + args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] 
-		+ "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt"
+	essay_fname = 'paragraphs/essay_' + args.sourcefile.split('.')[0] + "_" + args.stylefile.split('.')[0] + "-" + str(args.keyword_weight) + "_" + str(args.bigram_weight) + ".txt"
 	output_essay = open(essay_fname, 'w+')
 	essay = ' '.join(parsed_sents)
 	output_essay.write(essay)
