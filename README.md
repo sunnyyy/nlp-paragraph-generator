@@ -30,7 +30,7 @@ Run essaygenerator.py with the following keyword arguments:
 
 The output paragraph will be written to a file and placed in the paragraphs folder.
 
-Example:
+**Example:**
 
 Running:
 
