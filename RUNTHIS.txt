@@ -1,1 +1,1 @@
-python essaygenerator.py sourcedocs/wellesley.txt sourcedocs/sarah.txt output_v2_withtfidf.txt
+python essaygenerator.py wellesley.txt sarah.txt 2 5 0.5
