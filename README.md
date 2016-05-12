@@ -1,6 +1,28 @@
 # molynyk_smay_finalproject
 *Final CS349 project*
 
+**Write-up:**
+https://docs.google.com/document/d/15XQ8kMllONRKe_YXe0vFFh-XI1hiEKpRkKRGZ2JBJ5s/edit
+
+**Instructions for running:**
+-- python 2.7
+-- Stanford parser 
+-- nltk
+
+Run essaygenerator.py with the following keyword arguments: 
+-- source document (string): one of the documents in the sourcedocs folder; provides the emissions/words that will appear in the output paragraph
+-- style document (string): one of the documents in the sourcedocs folder; provides the part of speech transitions/”style” of the the output paragraph
+-- keyword weight (integer): the multiplicative weight of the keywords selected by the TFIDF algorithm
+-- number of keywords (integer): the number of keywords to be selected by the TFIDF algorithm
+-- bigram weight (float between 0 and 1): the percentage of the emission probabilities that should come from bigram probabilities as opposed to emission probabilities in an HMM
+
+The output paragraph will be written to a file and placed in the paragraphs folder.
+
+Example:
+Running:
+>> python essaygenerator.py wellesley.txt sarah.txt 2 3 0.7
+writes a paragraph with 3 keywords, weighted double, and uses 70% bigram and 30% emission probabilities.  It writes this paragraph to paragraphs/essay_wellesley_sarah-2.0_0.7.txt. 
+
 ----------
 
 *Thurs, 4/7/2016, Project Update:*
