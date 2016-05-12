@@ -34,7 +34,7 @@ Example:
 
 Running:
 
->> python essaygenerator.py wellesley.txt sarah.txt 2 3 0.7
+> python essaygenerator.py wellesley.txt sarah.txt 2 3 0.7
 
 writes a paragraph with 3 keywords, weighted double, and uses 70% bigram and 30% emission probabilities.  It writes this paragraph to paragraphs/essay_wellesley_sarah-2.0_0.7.txt. 
 
