@@ -9,10 +9,10 @@ from tfidf import tf_idf_v1
 import parse
 
 """ 
-Given a source file (s), style file (t), and output file (o), generates strings of words to be used
+Description: Given a source file (s), style file (t), and output file (o), generates strings of words to be used
 in the body of a paragraph/essay summarizing s in the style of t.  Writes these strings to o. 
 
-Arguments: s, t, keyword weight (multiplicative integer), number of keywords (integer), bigram weight (float between 0 and 1, inclusive)
+Arguments (in this order): s, t, keyword weight (multiplicative integer), number of keywords (integer), bigram weight (float between 0 and 1, inclusive)
 
 
 Emission probabilities are derived from a weighted average of HMM transition-emission probabilities 
